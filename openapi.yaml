@@ -1,0 +1,234 @@
+openapi: 3.0.0
+info:
+  title: EverAI Simulator API
+  version: 1.0.0
+  description: API specification for EverAI Simulator
+
+servers:
+  - url: https://everise-backend.replit.app
+    description: Production server
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        role:
+          type: string
+          enum: [super_admin, org_admin, trainer, trainee, creator]
+
+    SimulationScript:
+      type: object
+      properties:
+        script_sentence:
+          type: string
+        role:
+          type: string
+        keywords:
+          type: array
+          items:
+            type: string
+
+    CreateSimulationRequest:
+      type: object
+      required:
+        - user_id
+        - name
+        - division_id
+        - department_id
+        - type
+        - script
+        - tags
+      properties:
+        user_id:
+          type: string
+        name:
+          type: string
+        division_id:
+          type: string
+        department_id:
+          type: string
+        type:
+          type: string
+        script:
+          type: array
+          items:
+            $ref: '#/components/schemas/SimulationScript'
+        tags:
+          type: array
+          items:
+            type: string
+
+    CreateSimulationResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+        prompt:
+          type: string
+
+    PublishSimulationRequest:
+      type: object
+      required:
+        - user_id
+        - name
+        - division_id
+        - department_id
+        - type
+        - tags
+        - status
+        - script
+      properties:
+        user_id:
+          type: string
+        name:
+          type: string
+        division_id:
+          type: string
+        department_id:
+          type: string
+        type:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+        lvl1:
+          type: object
+          properties:
+            is_enabled:
+              type: boolean
+            enable_practice:
+              type: boolean
+            hide_agent_script:
+              type: boolean
+            hide_customer_script:
+              type: boolean
+            hide_keyword_scores:
+              type: boolean
+            hide_sentiment_scores:
+              type: boolean
+            hide_highlights:
+              type: boolean
+            hide_coaching_tips:
+              type: boolean
+            enable_post_simulation_survey:
+              type: boolean
+            ai_powered_pauses_and_feedback:
+              type: boolean
+        lvl2:
+          type: object
+          properties:
+            is_enabled:
+              type: boolean
+        lvl3:
+          type: object
+          properties:
+            is_enabled:
+              type: boolean
+        estimated_time_to_attempt_in_mins:
+          type: number
+        key_objectives:
+          type: array
+          items:
+            type: string
+        overview_video:
+          type: string
+        quick_tips:
+          type: array
+          items:
+            type: string
+        voice_id:
+          type: string
+        language:
+          type: string
+        mood:
+          type: string
+        voice_speed:
+          type: string
+        prompt:
+          type: string
+        simulation_completion_repetition:
+          type: number
+        simulation_max_repetition:
+          type: number
+        final_simulation_score_criteria:
+          type: string
+        simulation_scoring_metrics:
+          type: object
+          properties:
+            is_enabled:
+              type: boolean
+            keyword_score:
+              type: number
+            click_score:
+              type: number
+        sim_practice:
+          type: object
+          properties:
+            is_unlimited:
+              type: boolean
+            pre_requisite_limit:
+              type: number
+        is_locked:
+          type: boolean
+        version:
+          type: number
+        script:
+          type: array
+          items:
+            $ref: '#/components/schemas/SimulationScript'
+
+paths:
+  /api/simulations/create:
+    post:
+      summary: Create a new simulation
+      operationId: createSimulation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSimulationRequest'
+      responses:
+        '200':
+          description: Simulation created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateSimulationResponse'
+
+  /api/simulations/{simulationId}/update:
+    put:
+      summary: Update and publish a simulation
+      operationId: publishSimulation
+      parameters:
+        - name: simulationId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublishSimulationRequest'
+      responses:
+        '200':
+          description: Simulation published successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateSimulationResponse'
